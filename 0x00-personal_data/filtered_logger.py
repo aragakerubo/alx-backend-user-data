@@ -81,3 +81,24 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         user=os.environ.get('PERSONAL_DATA_DB_USERNAME'),
         password=os.environ.get('PERSONAL_DATA_DB_PASSWORD'),
     )
+
+
+def main() -> None:
+    """
+    Main function
+    """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users")
+    logger = get_logger()
+    columns = [i[0] for i in cursor.description]
+    for row in cursor:
+        logger.info("; ".join(
+            [f"{columns[i]}={row[i]}" for i in range(len(columns))]
+            ) + ";")
+    cursor.close()
+    db.close()
+
+
+if __name__ == '__main__':
+    main()
