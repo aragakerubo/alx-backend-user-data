@@ -3,6 +3,7 @@
 """
 from api.v1.auth.auth import Auth
 import base64
+from typing import TypeVar
 
 
 class BasicAuth(Auth):
@@ -36,8 +37,29 @@ class BasicAuth(Auth):
         """ Extract user credentials
         """
         if decoded_base64_authorization_header is None or \
-            not isinstance(decoded_base64_authorization_header, str) or \
-            ':' not in decoded_base64_authorization_header:
+            type(decoded_base64_authorization_header) is not str or \
+                ':' not in decoded_base64_authorization_header:
             return (None, None)
-        
+
         return tuple(decoded_base64_authorization_header.split(':', 1))
+
+    def user_object_from_credentials(
+            self, user_email: str, user_pwd: str) -> TypeVar('User'):
+        """ User object from credentials
+        """
+        from models.user import User
+
+        if user_email is None or type(user_email) is not str or \
+                user_pwd is None or type(user_pwd) is not str:
+            return None
+
+        try:
+            user_lookup = User.search({'email': user_email})
+            if not user_lookup or len(user_lookup) == 0:
+                return None
+            user = user_lookup[0]
+            if not user.is_valid_password(user_pwd):
+                return None
+            return user
+        except Exception:
+            return None
