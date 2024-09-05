@@ -16,7 +16,7 @@ class Auth:
             return True
         if path[-1] != '/':
             path += '/'
-        
+
         # check if path is in excluded_paths
         # allowing * at the end of excluded paths
         for excluded_path in excluded_paths:
