@@ -26,14 +26,15 @@ class SessionDBAuth(SessionExpAuth):
         """
         if session_id is None:
             return None
-        user_sessions = UserSession.search({'session_id': session_id})
-        if not user_sessions:
+        try:
+            user_sessions = UserSession.search({'session_id': session_id})
+        except Exception:
+            return None
+        if len(user_sessions) == 0:
             return None
         user_session = user_sessions[0]
-        if user_session is None:
-            return None
-        if user_session.created_at + timedelta(seconds=self.session_duration) \
-                < datetime.now():
+        if user_session.created_at + \
+                timedelta(seconds=self.session_duration) < datetime.now():
             return None
         return user_session.user_id
 
