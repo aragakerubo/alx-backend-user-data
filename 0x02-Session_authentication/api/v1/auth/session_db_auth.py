@@ -27,13 +27,15 @@ class SessionDBAuth(SessionExpAuth):
         if session_id is None:
             return None
         user_sessions = UserSession.search({'session_id': session_id})
-        if user_sessions:
-            user_session = user_sessions[0]
-            if user_session.created_at + \
-                    timedelta(seconds=self.session_duration) < datetime.now():
-                return None
-            return user_session.user_id
-        return None
+        if not user_sessions:
+            return None
+        user_session = user_sessions[0]
+        if user_session is None:
+            return None
+        if user_session.created_at + timedelta(seconds=self.session_duration) \
+                < datetime.now():
+            return None
+        return user_session.user_id
 
     def destroy_session(self, request=None):
         """ destroy session
