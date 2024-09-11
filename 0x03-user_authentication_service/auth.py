@@ -9,12 +9,13 @@ import bcrypt
 from db import DB
 from user import User
 
+
 def _hash_password(password: str) -> str:
     """Hashes a password
-    
+
     Args:
         password (str): password to hash
-        
+
     Returns:
         str: hashed password
     """
