@@ -4,8 +4,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import InvalidRequestError
 
 from user import Base, User
+
+
+USER_FIELDS = ["id", "email", "hashed_password", "session_id", "reset_token"]
 
 
 class DB:
@@ -35,4 +40,15 @@ class DB:
         user: User = User(email=email, hashed_password=hashed_password)
         self._session.add(user)
         self._session.commit()
+        return user
+
+    def find_user_by(self, **kwargs) -> User:
+        """Find a user by a specific attribute
+        """
+        if not kwargs or not all(key in USER_FIELDS for key in kwargs):
+            raise InvalidRequestError
+        try:
+            user = self._session.query(User).filter_by(**kwargs).one()
+        except NoResultFound:
+            raise NoResultFound
         return user
